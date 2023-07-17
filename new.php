@@ -3,6 +3,6 @@
   <title>Index</title>
  </head>
  <body>
- <?php echo '<p>*** HELLO WORLD *** </p>'; ?> 
+ <?php echo '<p>*** Deploy On Staging  *** </p>'; ?> 
  </body>
 </html>
