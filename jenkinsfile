@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+    stages {
+        stage('Checkout From Staging Branch') {
+           
+           steps {
+           //checkout scmGit(branches: [[name: '*/staging']], extensions: [], userRemoteConfigs: [[credentialsId: 'puja-git-hub-cread', url: 'https://github.com/pujaaRani/multibranch-php.git']])
+            git branch: 'staging', credentialsId: 'puja-git-hub-cread', url: 'https://github.com/pujaaRani/multibranch-php.git'
+               
+           }
+        }
+        stage('Deploy On Staging Environment') {
+          when {
+                branch 'staging'
+            }    
+          steps {
+             sshagent(['new-test']) {
+              sh 'ssh -o StrictHostKeyChecking=no root@3.111.31.231' 
+              sh 'scp -r /var/lib/jenkins/workspace/multiple-branch-insingle-pipeline/* root@3.111.31.231:/var/www/html/'
+              }
+            }
+        }
+        stage('Approval for deployment on prod ') {
+           steps {
+                  input 'Do you want to deploy on production ??'
+            }
+        }
+        stage('Checkout From Prod Branch') {
+           
+          steps {
+          checkout scmGit(branches: [[name: '*/prod']], extensions: [], userRemoteConfigs: [[credentialsId: 'puja-git-hub-cread', url: 'https://github.com/pujaaRani/multibranch-php.git']])
+          git branch: 'prod', credentialsId: 'puja-git-hub-cread', url: 'https://github.com/pujaaRani/multibranch-php.git'
+              
+          }
+       }
+        stage('Deploy On Production Environment') {
+          steps {
+            sshagent(['prod-keys']) {
+              sh 'ssh -o StrictHostKeyChecking=no root@13.233.90.10' 
+              sh 'scp -r /var/lib/jenkins/workspace/multiple-branch-insingle-pipeline/* root@13.233.90.10:/var/www/html/'
+              }
+            }
+        } 
+    }
+}    
